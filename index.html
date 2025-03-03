@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .next-due {
+            background-color: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .week-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .week {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+        }
+        
+        .week-header {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 5px 5px 0 0;
+            font-weight: bold;
+        }
+        
+        .current-week .week-header {
+            background-color: #2ecc71;
+        }
+        
+        .assignment {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #ddd;
+            position: relative;
+        }
+        
+        .assignment.cs320 {
+            border-left-color: #9b59b6;
+        }
+        
+        .assignment.cs330 {
+            border-left-color: #e67e22;
+        }
+        
+        .assignment.due-soon {
+            background-color: #fff9c4;
+        }
+        
+        .assignment.overdue {
+            background-color: #ffebee;
+        }
+        
+        .assignment.completed {
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+        
+        .course-tag {
+            display: inline-block;
+            padding: 2px 5px;
+            font-size: 12px;
+            border-radius: 3px;
+            margin-right: 5px;
+            color: white;
+        }
+        
+        .course-tag.cs320 {
+            background-color: #9b59b6;
+        }
+        
+        .course-tag.cs330 {
+            background-color: #e67e22;
+        }
+        
+        .due-date {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background-color: #ecf0f1;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background-color: #dde4e6;
+        }
+        
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .filter-btn.cs320 {
+            border: 1px solid #9b59b6;
+        }
+        
+        .filter-btn.cs320.active {
+            background-color: #9b59b6;
+        }
+        
+        .filter-btn.cs330 {
+            border: 1px solid #e67e22;
+        }
+        
+        .filter-btn.cs330.active {
+            background-color: #e67e22;
+        }
+        
+        .checkbox {
+            cursor: pointer;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+        
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .progress-card {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-right: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .progress-card:last-child {
+            margin-right: 0;
+        }
+        
+        .progress-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #3498db;
+        }
+        
+        .progress-fill.cs320 {
+            background-color: #9b59b6;
+        }
+        
+        .progress-fill.cs330 {
+            background-color: #e67e22;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            text-align: right;
+            color: #7f8c8d;
+        }
+
+        button {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        
+        @media (max-width: 768px) {
+            .week-container {
+                flex-direction: column;
+            }
+            
+            .progress-container {
+                flex-direction: column;
+            }
+            
+            .progress-card {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Assignment Tracker</h1>
+        <p id="current-date">Loading current date...</p>
+    </header>
+    
+    <div id="next-due" class="next-due">
+        Loading next assignment...
+    </div>
+    
+    <div class="progress-container">
+        <div class="progress-card">
+            <div class="progress-title">CS320 Progress</div>
+            <div class="progress-bar">
+                <div id="cs320-progress" class="progress-fill cs320" style="width: 0%"></div>
+            </div>
+            <div id="cs320-progress-text" class="progress-text">0 / 16 assignments completed (0%)</div>
+        </div>
+        
+        <div class="progress-card">
+            <div class="progress-title">CS330 Progress</div>
+            <div class="progress-bar">
+                <div id="cs330-progress" class="progress-fill cs330" style="width: 0%"></div>
+            </div>
+            <div id="cs330-progress-text" class="progress-text">0 / 20 assignments completed (0%)</div>
+        </div>
+        
+        <div class="progress-card">
+            <div class="progress-title">Overall Progress</div>
+            <div class="progress-bar">
+                <div id="overall-progress" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div id="overall-progress-text" class="progress-text">0 / 36 assignments completed (0%)</div>
+        </div>
+    </div>
+    
+    <div class="filters">
+        <button class="filter-btn active" data-filter="all">All Assignments</button>
+        <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+        <button class="filter-btn cs320" data-filter="cs320">CS320 Only</button>
+        <button class="filter-btn cs330" data-filter="cs330">CS330 Only</button>
+    </div>
+    
+    <div id="weeks-container"></div>
+    
+    <script>
+        // Assignment data
+        const assignments = [
+            // CS320 Assignments
+            { id: 'cs320-1-1', course: 'CS320', week: 1, name: 'Discussion: Introductions and Experience (Initial Post)', dueDay: 4, points: 30, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs320-1-1r', course: 'CS320', week: 1, name: 'Discussion: Introductions and Experience (Responses)', dueDay: 0, points: 30, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs320-1-2', course: 'CS320', week: 1, name: 'Assignment: Accessing Software', dueDay: 0, points: 30, type: 'Assignment' },
+            { id: 'cs320-1-3', course: 'CS320', week: 1, name: 'Journal: The Role of Testing in the Software Development Life Cycle', dueDay: 0, points: 35, type: 'Journal' },
+            
+            { id: 'cs320-2-1', course: 'CS320', week: 2, name: 'Discussion: Continuous Integration (Initial Post)', dueDay: 4, points: 30, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs320-2-1r', course: 'CS320', week: 2, name: 'Discussion: Continuous Integration (Responses)', dueDay: 0, points: 30, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs320-2-2', course: 'CS320', week: 2, name: 'Journal: Dynamic and Static Testing', dueDay: 0, points: 35, type: 'Journal' },
+            { id: 'cs320-2-3', course: 'CS320', week: 2, name: 'Quiz: Software Techniques Tools and Applications', dueDay: 0, points: 20, type: 'Quiz' },
+            
+            { id: 'cs320-3-1', course: 'CS320', week: 3, name: 'Discussion: Requirements (Initial Post)', dueDay: 4, points: 30, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs320-3-1r', course: 'CS320', week: 3, name: 'Discussion: Requirements (Responses)', dueDay: 0, points: 30, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs320-3-2', course: 'CS320', week: 3, name: 'Milestone: Contact Service', dueDay: 0, points: 75, type: 'Milestone' },
+            
+            { id: 'cs320-4-1', course: 'CS320', week: 4, name: 'Milestone: Task Service', dueDay: 0, points: 75, type: 'Milestone' },
+            { id: 'cs320-4-2', course: 'CS320', week: 4, name: 'Journal: Unit Testing Approach and Writing JUnit Tests', dueDay: 0, points: 35, type: 'Journal' },
+            
+            { id: 'cs320-5-1', course: 'CS320', week: 5, name: 'Milestone: Appointment Service', dueDay: 0, points: 75, type: 'Milestone' },
+            { id: 'cs320-5-2', course: 'CS320', week: 5, name: 'Journal: Software Testing Techniques', dueDay: 0, points: 35, type: 'Journal' },
+            
+            { id: 'cs320-6-1', course: 'CS320', week: 6, name: 'Project One Submission', dueDay: 0, points: 200, type: 'Project' },
+            
+            { id: 'cs320-7-1', course: 'CS320', week: 7, name: 'Discussion: Released Escapements and Defects (Initial Post)', dueDay: 4, points: 30, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs320-7-1r', course: 'CS320', week: 7, name: 'Discussion: Released Escapements and Defects (Responses)', dueDay: 0, points: 30, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs320-7-2', course: 'CS320', week: 7, name: 'Project Two Submission', dueDay: 0, points: 200, type: 'Project' },
+            
+            { id: 'cs320-8-1', course: 'CS320', week: 8, name: 'Discussion: Software Automation (Initial Post)', dueDay: 4, points: 30, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs320-8-1r', course: 'CS320', week: 8, name: 'Discussion: Software Automation (Responses)', dueDay: 0, points: 30, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs320-8-2', course: 'CS320', week: 8, name: 'Journal: Portfolio Item', dueDay: 0, points: 35, type: 'Journal' },
+            
+            // CS330 Assignments
+            { id: 'cs330-1-2', course: 'CS330', week: 1, name: 'Assignment: Preparing the Development Environment', dueDay: 0, points: 20, type: 'Assignment' },
+            { id: 'cs330-1-3', course: 'CS330', week: 1, name: 'Discussion: OpenGL Variants and Uses (Initial Post)', dueDay: 4, points: 20, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs330-1-3r', course: 'CS330', week: 1, name: 'Discussion: OpenGL Variants and Uses (Responses)', dueDay: 0, points: 20, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs330-1-4', course: 'CS330', week: 1, name: 'Final Project Review: Shapes and Image Selection', dueDay: 0, points: 10, type: 'Project Review' },
+            
+            { id: 'cs330-2-1', course: 'CS330', week: 2, name: 'Quiz: Theory Behind 3D Shapes', dueDay: 0, points: 20, type: 'Quiz' },
+            { id: 'cs330-2-2', course: 'CS330', week: 2, name: 'Assignment: 3D Shape Transformation', dueDay: 0, points: 40, type: 'Assignment' },
+            { id: 'cs330-2-3', course: 'CS330', week: 2, name: 'Milestone One: Project Proposal', dueDay: 0, points: 30, type: 'Milestone' },
+            
+            { id: 'cs330-3-1', course: 'CS330', week: 3, name: 'Quiz: Coding 3D Shapes', dueDay: 0, points: 20, type: 'Quiz' },
+            { id: 'cs330-3-2', course: 'CS330', week: 3, name: 'Assignment: 3D Object Construction', dueDay: 0, points: 40, type: 'Assignment' },
+            { id: 'cs330-3-3', course: 'CS330', week: 3, name: 'Milestone Two: Beginning a 3D Scene', dueDay: 0, points: 60, type: 'Milestone' },
+            
+            { id: 'cs330-4-1', course: 'CS330', week: 4, name: 'Discussion: Different Input Devices (Initial Post)', dueDay: 4, points: 20, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs330-4-1r', course: 'CS330', week: 4, name: 'Discussion: Different Input Devices (Responses)', dueDay: 0, points: 20, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs330-4-2', course: 'CS330', week: 4, name: 'Assignment: Basic Camera Movement', dueDay: 0, points: 40, type: 'Assignment' },
+            { id: 'cs330-4-3', course: 'CS330', week: 4, name: 'Milestone Three: Interactivity in a 3D Scene', dueDay: 0, points: 60, type: 'Milestone' },
+            
+            { id: 'cs330-5-1', course: 'CS330', week: 5, name: 'Quiz: Understanding Texture', dueDay: 0, points: 20, type: 'Quiz' },
+            { id: 'cs330-5-2', course: 'CS330', week: 5, name: 'Assignment: Texturing 3D Shapes', dueDay: 0, points: 40, type: 'Assignment' },
+            { id: 'cs330-5-3', course: 'CS330', week: 5, name: 'Milestone Four: Texturing Objects in a 3D Scene', dueDay: 0, points: 60, type: 'Milestone' },
+            
+            { id: 'cs330-6-1', course: 'CS330', week: 6, name: 'Discussion: Types of Light (Initial Post)', dueDay: 4, points: 20, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs330-6-1r', course: 'CS330', week: 6, name: 'Discussion: Types of Light (Responses)', dueDay: 0, points: 20, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs330-6-2', course: 'CS330', week: 6, name: 'Assignment: Lighting 3D Scenes', dueDay: 0, points: 40, type: 'Assignment' },
+            { id: 'cs330-6-3', course: 'CS330', week: 6, name: 'Milestone Five: Lighting Complex Objects', dueDay: 0, points: 60, type: 'Milestone' },
+            
+            { id: 'cs330-7-1', course: 'CS330', week: 7, name: 'Final Project Submission', dueDay: 0, points: 300, type: 'Project' },
+            { id: 'cs330-7-2', course: 'CS330', week: 7, name: 'Portfolio Prep', dueDay: 0, points: 0, type: 'Assignment' },
+            
+            { id: 'cs330-8-1', course: 'CS330', week: 8, name: 'Discussion: Final Project Reflection (Initial Post)', dueDay: 4, points: 20, type: 'Discussion', isDiscussion: true, isInitialPost: true },
+            { id: 'cs330-8-1r', course: 'CS330', week: 8, name: 'Discussion: Final Project Reflection (Responses)', dueDay: 0, points: 20, type: 'Discussion', isDiscussion: true, isResponse: true },
+            { id: 'cs330-8-2', course: 'CS330', week: 8, name: 'Assignment: Coding Collisions', dueDay: 0, points: 40, type: 'Assignment' },
+            { id: 'cs330-8-3', course: 'CS330', week: 8, name: 'Journal: Portfolio Submission', dueDay: 0, points: 20, type: 'Journal' }
+        ];
+        
+        // If you need to restore assignments completion from local storage
+        const savedCompletions = JSON.parse(localStorage.getItem('completedAssignments')) || {};
+        
+        // Create week dates
+        const startDate = new Date(2025, 2, 3); // March 3rd, 2025 (Month is 0-indexed)
+        const currentDate = new Date();
+        
+        // Format the current date
+        document.getElementById('current-date').textContent = currentDate.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        // Calculate the current week
+        const daysSinceStart = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
+        const currentWeek = Math.floor(daysSinceStart / 7) + 1;
+        
+        // Generate weeks
+        const weeksContainer = document.getElementById('weeks-container');
+        
+        for (let week = 1; week <= 8; week++) {
+            // Calculate week dates
+            const weekStartDate = new Date(startDate);
+            weekStartDate.setDate(startDate.getDate() + (week - 1) * 7);
+            const weekEndDate = new Date(weekStartDate);
+            weekEndDate.setDate(weekStartDate.getDate() + 6);
+            
+            // Format dates
+            const formattedStartDate = weekStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const formattedEndDate = weekEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            // Create week container
+            const weekElement = document.createElement('div');
+            weekElement.className = 'week';
+            if (week === currentWeek) {
+                weekElement.classList.add('current-week');
+            }
+            
+            // Create week header
+            const weekHeader = document.createElement('div');
+            weekHeader.className = 'week-header';
+            weekHeader.textContent = `Week ${week} (${formattedStartDate} - ${formattedEndDate})`;
+            
+            // Add header to week
+            weekElement.appendChild(weekHeader);
+            
+            // Filter assignments for this week
+            const weekAssignments = assignments.filter(assignment => assignment.week === week);
+            
+            // Sort assignments by due date, then by course
+            weekAssignments.sort((a, b) => {
+                // First sort by due day
+                if (a.dueDay !== b.dueDay) {
+                    return a.dueDay - b.dueDay;
+                }
+                // Then by course
+                return a.course.localeCompare(b.course);
+            });
+            
+            // Add assignments to week
+            weekAssignments.forEach(assignment => {
+                // Calculate due date
+                const dueDate = new Date(weekStartDate);
+                dueDate.setDate(weekStartDate.getDate() + (assignment.dueDay === 0 ? 6 : assignment.dueDay - 1)); // 0 means Sunday, last day
+                
+                // Format due date
+                const formattedDueDate = dueDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                
+                // Create assignment element
+                const assignmentElement = document.createElement('div');
+                assignmentElement.className = `assignment ${assignment.course.toLowerCase()}`;
+                assignmentElement.dataset.id = assignment.id;
+                assignmentElement.dataset.course = assignment.course.toLowerCase();
+                
+                // Check if due soon (within next 3 days)
+                const daysUntilDue = Math.ceil((dueDate - currentDate) / (1000 * 60 * 60 * 24));
+                if (daysUntilDue <= 3 && daysUntilDue >= 0) {
+                    assignmentElement.classList.add('due-soon');
+                } else if (daysUntilDue < 0) {
+                    assignmentElement.classList.add('overdue');
+                }
+                
+                // Check if completed
+                if (savedCompletions[assignment.id]) {
+                    assignmentElement.classList.add('completed');
+                }
+                
+                // Create course tag
+                const courseTag = document.createElement('span');
+                courseTag.className = `course-tag ${assignment.course.toLowerCase()}`;
+                courseTag.textContent = assignment.course;
+                
+                // Create assignment name
+                const nameElement = document.createElement('span');
+                nameElement.textContent = assignment.name;
+                
+                // Create due date element
+                const dueDateElement = document.createElement('div');
+                dueDateElement.className = 'due-date';
+                dueDateElement.textContent = `Due: ${formattedDueDate} - ${assignment.points} points`;
+
+
+                // Create checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'checkbox';
+                checkbox.checked = savedCompletions[assignment.id] || false;
+                checkbox.addEventListener('change', function() {
+                    const assignmentId = this.parentElement.dataset.id;
+                    const isCompleted = this.checked;
+                    
+                    // Save completion status
+                    const completions = JSON.parse(localStorage.getItem('completedAssignments')) || {};
+                    completions[assignmentId] = isCompleted;
+                    localStorage.setItem('completedAssignments', JSON.stringify(completions));
+                    
+                    // Update UI
+                    if (isCompleted) {
+                        this.parentElement.classList.add('completed');
+                    } else {
+                        this.parentElement.classList.remove('completed');
+                    }
+                    
+                    // Update progress
+                    updateProgress();
+                    updateNextDue();
+                });
+
+                // data.js
+                const classData = {
+                    CS320: {
+                        classID: 1860257,
+                        itemIDStart: 39171665,
+                        submissionID: 3441362,
+                        assignments: [
+                            // Only non-discussion assignments here
+                            { week: 1, name: 'Journal: The Role of Testing in the Software Development Life Cycle', type: 'Journal' },
+                            { week: 2, name: 'Journal: Dynamic and Static Testing', type: 'Journal' },
+                            { week: 2, name: 'Quiz: Software Techniques Tools and Applications', type: 'Quiz' },
+                            { week: 3, name: 'Milestone: Contact Service', type: 'Milestone' },
+                            { week: 4, name: 'Milestone: Task Service', type: 'Milestone' },
+                            { week: 4, name: 'Journal: Unit Testing Approach and Writing JUnit Tests', type: 'Journal' },
+                            { week: 5, name: 'Milestone: Appointment Service', type: 'Milestone' },
+                            { week: 5, name: 'Journal: Software Testing Techniques', type: 'Journal' },
+                            { week: 6, name: 'Project One Submission', type: 'Project' },
+                            { week: 7, name: 'Project Two Submission', type: 'Project' },
+                            { week: 8, name: 'Journal: Portfolio Item', type: 'Journal' }
+                        ]
+                    },
+                    CS330: {
+                        classID: 1860276,
+                        itemIDStart: 39623847,
+                        submissionID: 3474393,
+                        assignments: [
+                            // Only non-discussion assignments here
+                            { week: 1, name: 'Assignment: Preparing the Development Environment', type: 'Assignment' },
+                            { week: 1, name: 'Final Project Review: Shapes and Image Selection', type: 'Project Review' },
+                            { week: 2, name: 'Quiz: Theory Behind 3D Shapes', type: 'Quiz' },
+                            { week: 2, name: 'Assignment: 3D Shape Transformation', type: 'Assignment' },
+                            { week: 2, name: 'Milestone One: Project Proposal', type: 'Milestone' },
+                            { week: 3, name: 'Quiz: Coding 3D Shapes', type: 'Quiz' },
+                            { week: 3, name: 'Assignment: 3D Object Construction', type: 'Assignment' },
+                            { week: 3, name: 'Milestone Two: Beginning a 3D Scene', type: 'Milestone' },
+                            { week: 4, name: 'Assignment: Basic Camera Movement', type: 'Assignment' },
+                            { week: 4, name: 'Milestone Three: Interactivity in a 3D Scene', type: 'Milestone' },
+                            { week: 5, name: 'Quiz: Understanding Texture', type: 'Quiz' },
+                            { week: 5, name: 'Assignment: Texturing 3D Shapes', type: 'Assignment' },
+                            { week: 5, name: 'Milestone Four: Texturing Objects in a 3D Scene', type: 'Milestone' },
+                            { week: 6, name: 'Assignment: Lighting 3D Scenes', type: 'Assignment' },
+                            { week: 6, name: 'Milestone Five: Lighting Complex Objects', type: 'Milestone' },
+                            { week: 7, name: 'Final Project Submission', type: 'Project' },
+                            { week: 8, name: 'Assignment: Coding Collisions', type: 'Assignment' },
+                            { week: 8, name: 'Journal: Portfolio Submission', type: 'Journal' }
+                        ]
+                    }
+                };
+
+                // Generate itemIDs for each class
+                Object.values(classData).forEach(cls => {
+                    let currentID = cls.itemIDStart;
+                    cls.assignments.forEach(assignment => {
+                        assignment.itemID = currentID++;
+                        assignment.classID = cls.classID;
+                        assignment.submissionID = cls.submissionID++;
+                    });
+                });
+
+                // Assemble assignment element
+                assignmentElement.appendChild(courseTag);
+                assignmentElement.appendChild(nameElement);
+                assignmentElement.appendChild(dueDateElement);
+                assignmentElement.appendChild(checkbox);
+
+                // Add this before creating the checkbox element
+                if (assignment.type != "Discussion") {
+                    const classInfo = classData[assignment.course];
+                    const assignmentData = classInfo.assignments.find(a =>
+                        a.week === assignment.week && a.name === assignment.name
+                    );
+
+                    if (assignmentData) {
+                        const detailsButton = document.createElement('button');
+                        detailsButton.textContent = 'Details';
+                        detailsButton.style.marginRight = '10px';
+                        detailsButton.style.padding = '10px 15px';
+                        detailsButton.style.backgroundColor = '#4CAF50'; // Change to desired color
+                        detailsButton.style.color = '#fff';
+                        detailsButton.style.border = 'none';
+                        detailsButton.style.borderRadius = '5px';
+                        detailsButton.style.cursor = 'pointer';
+                        detailsButton.onclick = function() {
+                            window.open(`https://learn.snhu.edu/d2l/le/content/${assignmentData.classID}/viewContent/${assignmentData.itemID}/View`, '_blank');
+                        };
+
+                        const submitButton = document.createElement('button');
+                        submitButton.textContent = 'Submit';
+                        submitButton.style.padding = '10px 15px';
+                        submitButton.style.backgroundColor = '#008CBA'; // Change to desired color
+                        submitButton.style.color = '#fff';
+                        submitButton.style.border = 'none';
+                        submitButton.style.borderRadius = '5px';
+                        submitButton.style.cursor = 'pointer';
+                        submitButton.onclick = function() {
+                            window.open(`https://learn.snhu.edu/d2l/lms/dropbox/user/folder_submit_files.d2l?db=${assignmentData.submissionID}&grpid=0&isprv=0&bp=0&ou=${assignmentData.classID}`, '_blank');
+                        };
+
+                        assignmentElement.appendChild(detailsButton);
+                        assignmentElement.appendChild(submitButton);
+                    }
+                }
+                
+
+                
+                // Add assignment to week
+                weekElement.appendChild(assignmentElement);
+            });
+            
+            // If no assignments in week, show message
+            if (weekAssignments.length === 0) {
+                const noAssignments = document.createElement('div');
+                noAssignments.textContent = 'No assignments this week.';
+                noAssignments.style.fontStyle = 'italic';
+                noAssignments.style.color = '#999';
+                noAssignments.style.textAlign = 'center';
+                noAssignments.style.padding = '20px';
+                weekElement.appendChild(noAssignments);
+            }
+            
+            // Add week to container
+            weeksContainer.appendChild(weekElement);
+        }
+        
+        // Update progress bars
+        function updateProgress() {
+            const completions = JSON.parse(localStorage.getItem('completedAssignments')) || {};
+            
+            // Count completed assignments by course
+            const cs320Total = assignments.filter(a => a.course === 'CS320').length;
+            const cs330Total = assignments.filter(a => a.course === 'CS330').length;
+            const totalAssignments = assignments.length;
+            
+            const cs320Completed = assignments.filter(a => a.course === 'CS320' && completions[a.id]).length;
+            const cs330Completed = assignments.filter(a => a.course === 'CS330' && completions[a.id]).length;
+            const totalCompleted = cs320Completed + cs330Completed;
+            
+            // Calculate percentages
+            const cs320Percent = (cs320Completed / cs320Total) * 100;
+            const cs330Percent = (cs330Completed / cs330Total) * 100;
+            const totalPercent = (totalCompleted / totalAssignments) * 100;
+            
+            // Update progress bars
+            document.getElementById('cs320-progress').style.width = cs320Percent + '%';
+            document.getElementById('cs330-progress').style.width = cs330Percent + '%';
+            document.getElementById('overall-progress').style.width = totalPercent + '%';
+            
+            // Update progress text
+            document.getElementById('cs320-progress-text').textContent = 
+                `${cs320Completed} / ${cs320Total} assignments completed (${Math.round(cs320Percent)}%)`;
+            document.getElementById('cs330-progress-text').textContent = 
+                `${cs330Completed} / ${cs330Total} assignments completed (${Math.round(cs330Percent)}%)`;
+            document.getElementById('overall-progress-text').textContent = 
+                `${totalCompleted} / ${totalAssignments} assignments completed (${Math.round(totalPercent)}%)`;
+        }
+        
+        // Find and display next due assignment
+        function updateNextDue() {
+            const completions = JSON.parse(localStorage.getItem('completedAssignments')) || {};
+            
+            // Get incomplete assignments
+            const incompleteAssignments = assignments.filter(a => !completions[a.id]);
+            
+            // Calculate due dates for all assignments
+            const assignmentsWithDates = incompleteAssignments.map(assignment => {
+                const weekStartDate = new Date(startDate);
+                weekStartDate.setDate(startDate.getDate() + (assignment.week - 1) * 7);
+                
+                const dueDate = new Date(weekStartDate);
+                dueDate.setDate(weekStartDate.getDate() + (assignment.dueDay === 0 ? 6 : assignment.dueDay - 1));
+                
+                return {
+                    ...assignment,
+                    dueDate: dueDate
+                };
+            });
+            
+            // Sort by due date
+            assignmentsWithDates.sort((a, b) => a.dueDate - b.dueDate);
+            
+            // Find next due assignment
+            const nextDue = assignmentsWithDates.find(a => a.dueDate >= currentDate);
+            
+            // Update next due element
+            const nextDueElement = document.getElementById('next-due');
+            
+            if (nextDue) {
+                const formattedDueDate = nextDue.dueDate.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                // Calculate days until due
+                const daysUntilDue = Math.ceil((nextDue.dueDate - currentDate) / (1000 * 60 * 60 * 24));
+                let dueText = '';
+                
+                if (daysUntilDue === 0) {
+                    dueText = 'Due Today!';
+                } else if (daysUntilDue === 1) {
+                    dueText = 'Due Tomorrow!';
+                } else {
+                    dueText = `Due in ${daysUntilDue} days`;
+                }
+                
+                nextDueElement.innerHTML = `
+                    <strong>Next Assignment Due:</strong> ${nextDue.course} - ${nextDue.name}<br>
+                    <span style="font-size: 14px;">${formattedDueDate} (${dueText})</span>
+                `;
+            } else {
+                nextDueElement.textContent = 'All assignments completed! 🎉';
+            }
+        }
+        
+        // Filter assignments
+        function filterAssignments(filter) {
+            const assignments = document.querySelectorAll('.assignment');
+            const completions = JSON.parse(localStorage.getItem('completedAssignments')) || {};
+            
+            assignments.forEach(assignment => {
+                const id = assignment.dataset.id;
+                const course = assignment.dataset.course;
+                const isCompleted = completions[id] || false;
+                
+                // Reset visibility
+                assignment.style.display = '';
+                
+                // Apply filter
+                switch (filter) {
+                    case 'upcoming':
+                        if (isCompleted) {
+                            assignment.style.display = 'none';
+                        }
+                        break;
+                    case 'completed':
+                        if (!isCompleted) {
+                            assignment.style.display = 'none';
+                        }
+                        break;
+                    case 'cs320':
+                        if (course !== 'cs320') {
+                            assignment.style.display = 'none';
+                        }
+                        break;
+                    case 'cs330':
+                        if (course !== 'cs330') {
+                            assignment.style.display = 'none';
+                        }
+                        break;
+                }
+            });
+            
+            // Update active filter button
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                if (button.dataset.filter === filter) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+        
+        // Set up filter buttons
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const filter = this.dataset.filter;
+                filterAssignments(filter);
+            });
+        });
+        
+        // Initialize
+        updateProgress();
+        updateNextDue();
+
+    </script>
+</body>
+</html>
+    
